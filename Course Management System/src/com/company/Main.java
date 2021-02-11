@@ -13,9 +13,11 @@ import java.io.FileWriter;
 import java.io.Writer;
 
 
-public class Main {
+public class Main extends DatabaseCreate{
     public static void main(String[] args) {
 
+        //Creating a object of class DatabaseCreate which automatically calls the DatabaseCreate constructor function
+        DatabaseCreate dc = new DatabaseCreate();
         int choose;
         int usertype;
         String register_name, register_email, register_password;
@@ -48,9 +50,9 @@ public class Main {
                 try{
                     Class.forName("com.mysql.jdbc.Driver");
                     Connection con=DriverManager.getConnection(
-                            "jdbc:mysql://localhost:3308/coursemanagementsystem","root","");
+                            "jdbc:mysql://localhost:3308/testjava","root","");
                     Statement stmt=con.createStatement();
-                    String query = "insert into users (name,email,password,usertype) values('" +register_name+ "', '" +register_email+
+                    String query = "insert into users (name,email,password,user_type) values('" +register_name+ "', '" +register_email+
                             "', '" +register_password+ "', " +usertype+ ")";
                     // Echo for debugging
 //                    System.out.println("The SQL statement is: " + query + "\n");
@@ -102,7 +104,7 @@ public class Main {
         try{
             Class.forName("com.mysql.jdbc.Driver");
             Connection con= DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3308/coursemanagementsystem","root","");
+                    "jdbc:mysql://localhost:3308/testjava","root","");
             Statement stmt=con.createStatement();
             String testquery = "SELECT * FROM users Where email='"+login_email+"' AND password='"+login_password+"'";
             ResultSet rs= stmt.executeQuery(testquery);
@@ -110,7 +112,7 @@ public class Main {
             {
                 String useremail = rs.getString("email");
                 String userpassword = rs.getString("password");
-                int usertype = rs.getInt("usertype");
+                int usertype = rs.getInt("user_type");
                 int userid = rs.getInt("id");
 
                 if(useremail.equals(login_email) && userpassword.equals(login_password))
@@ -121,14 +123,15 @@ public class Main {
 
                             System.out.println("You are logged in as Student.");
 
-//                            String testquery1 = "SELECT * FROM courses Where student_id='"+userid+"'";
-//                            ResultSet rs1= stmt.executeQuery(testquery1);
-//                            while(rs1.next())
-//                            {
-//                                int level_id = rs1.getInt("level_id");
-//                                System.out.println("You are studying in level "+level_id);
-//                            }
-                            System.out.println("Enter 1 to choose the course");
+                            System.out.println("The available courses are:");
+                            ResultSet rsc= stmt.executeQuery("SELECT * FROM courses");
+                            while(rsc.next())
+                            {
+                                System.out.println("ID: "+rsc.getInt(1)+" Course Name: "+rsc.getString(2));
+                            }
+
+                            System.out.println("1. Choose the course");
+                            System.out.println("2. See the results");
                             int coo = sc.nextInt();
 
                             switch(coo)
@@ -167,6 +170,19 @@ public class Main {
                                         {
                                             System.out.println("You are enrolled into the course successfully.");
                                         }
+                                    }
+                                    break;
+
+                                case 2:
+                                    int std_id;
+                                    System.out.println("Enter the id of the student to see the results.");
+                                    std_id = sc.nextInt();
+                                    System.out.println("The result of the student is:");
+                                    ResultSet rsresult= stmt.executeQuery("SELECT * FROM resultslip where student_id='"+std_id+"'");
+                                    while(rsresult.next())
+                                    {
+                                        System.out.println("Student ID: "+rsresult.getInt(2)+" Module 1: "+rsresult.getString(3)+" Module 2: "+rsresult.getString(4)
+                                                +" Module 3: "+rsresult.getString(5)+" Module 4: "+rsresult.getString(6));
                                     }
                                     break;
                                 default:
@@ -271,7 +287,7 @@ public class Main {
                                     System.out.println("The available students are:");
                                     try{
                                         System.out.println("The available courses are:");
-                                        ResultSet rs5= stmt.executeQuery("SELECT * FROM users where usertype=1");
+                                        ResultSet rs5= stmt.executeQuery("SELECT * FROM users where user_type=1");
                                         while(rs5.next())
                                         {
                                             System.out.println("ID: "+rs5.getInt(1)+" Student Name: "+rs5.getString(2));
@@ -335,7 +351,7 @@ public class Main {
                                     System.out.println("Add Marks:");
                                     int module1_marks, module2_marks, module3_marks, module4_marks, student_id;
                                     System.out.println("The available students are:");
-                                    ResultSet rs4= stmt.executeQuery("SELECT * FROM users where usertype=1");
+                                    ResultSet rs4= stmt.executeQuery("SELECT * FROM users where user_type=1");
                                     while(rs4.next())
                                     {
                                         System.out.println("ID: "+rs4.getInt(1)+" Student Name: "+rs4.getString(2));
